@@ -18,9 +18,12 @@ public class ProjectsApp {
 	// instance variables
 	private ProjectService projectService = new ProjectService();
 	private Scanner scanner = new Scanner (System.in);
+	private Project curProject;
 	// @formatter:off
 	private List<String> operations = List.of (
-					"1) Add a project"
+					"1) Add a project", 
+					"2) List projects",
+					"3) Select a project"
 			);
 	// @formatter:on
 			
@@ -41,6 +44,15 @@ public class ProjectsApp {
 					createProject();
 					break;
 				
+				case 2:
+					listProjects();
+					break;
+				
+				case 3:
+					selectProject();
+					break;
+					
+				
 				default:
 					System.out.println("\n" + selection + " is not a valid selection. Try again.");
 					break;
@@ -49,11 +61,32 @@ public class ProjectsApp {
 			// catches exceptions when there's an error in user input
 			catch(Exception e) {
 				System.out.println("\nError: " + e + " Try again.");
+				  
 			}
 		
 		}
 		
 	}
+	// method to print a list of projects
+	private void listProjects() {
+		List<Project> projects = projectService.fetchAllProjects();
+		
+		System.out.println("\nProjects:");
+		
+		projects.forEach(project -> System.out.println("  " + project.getProjectId() + ": " + project.getProjectName()));
+	}
+	
+	// method to list Project IDs and names
+	private void selectProject() {
+		listProjects(); // prints lists of projects
+		Integer projectId = getIntInput("Enter a project ID to select a project"); //collect project ID from user
+		
+		curProject = null; // removes selection of any currently selected project 
+		
+		curProject = projectService.fetchProjectById(projectId); // will throw a NoSuchElementException if invalid project ID is entered
+	}
+	
+	
 	// method prints exiting menu, return true that stops loops in method above that ends program
 	private boolean exitMenu() {
 		System.out.println("Exiting the menu.");
@@ -130,6 +163,14 @@ public class ProjectsApp {
 		System.out.println("\nThese are the available selections. Press Enter key to quit:");
 		
 		operations.forEach(line -> System.out.println(" " + line));
+		
+	
+		if(Objects.isNull(curProject)) {
+			System.out.println("\nYou are not working with a project.");
+		}
+		else {
+			System.out.println("\nYou are working with a project: " + curProject);
+		}
 	}
 
 }
